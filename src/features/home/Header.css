@@ -1,0 +1,62 @@
+header {
+  background-color: #333;
+  color: #fff;
+  height: 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  margin-left: 20pt;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navigation {
+  display: flex;
+}
+
+.navigation a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 20px;
+}
+
+.navigation a:first-child {
+  margin-left: 0;
+}
+
+.login-button {
+  margin-right: 40px;
+  cursor: pointer;
+  position: relative;
+}
+
+.options {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: block;
+  white-space: nowrap;
+}
+
+.option {
+  display: block;
+  padding: 5px 0;
+  text-decoration: none;
+  color: #fff;
+}
+
+.option:hover {
+  background-color: #555;
+}
+
+.login-button:hover .options {
+  display: block;
+}
