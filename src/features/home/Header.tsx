@@ -1,12 +1,22 @@
 import { useRef, useState } from "react";
 import "./Header.css";
 import { RootState } from "../../Store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Request from "../../api/Request";
+import { CredentialsSlice } from "../credentials/CredentialsStore";
 
 export default function Header() {
-  const isLogged = useSelector(
-    (state: RootState) => state.credentials.token === null
-  );
+  const token = useSelector((state: RootState) => state.credentials.token);
+  const isLogged = useSelector((state: RootState) => state.credentials.token === null);
+  const dispatch = useDispatch();
+  setTimeout(async ()=>{
+    if(token === null) return
+    Request("login").post({token}).then(v=>{},( v)=>{
+      dispatch(
+        CredentialsSlice.actions.reset()
+      );
+    }).catch(()=>{});
+  })
   const [showOptions, setShowOptions] = useState(false);
   const timeoutRef = useRef(setTimeout(() => {}, 0));
 

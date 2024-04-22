@@ -4,7 +4,7 @@ const BACK_PORT = 3002;
 export default function request(...path: string[]) {
   let uri = BACK_URL + ":" + BACK_PORT + "/" + path.join("/");
   let header = {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   };
 
   return {
