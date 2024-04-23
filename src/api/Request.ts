@@ -32,16 +32,12 @@ function populate_params(path: string[], params: any): string[] {
 }
 
 function fetch_(path: string, method: string, header: any, body: any) {
-  console.log(method + " : " + path);
   return fetch(path, {
     method: method,
     headers: header,
     body: body ? JSON.stringify(body) : null,
   }).then(async (v) => {
-    if (!v.headers.get("content-type")?.startsWith("application/json")) {
-      console.log("HEADER_TYPE " + v.headers.get("content-type"));
-      return v;
-    }
+    if (!v.headers.get("content-type")?.startsWith("application/json")) return v;
     let data = await v.json();
     data["$ok"] = v.ok;
     return data;

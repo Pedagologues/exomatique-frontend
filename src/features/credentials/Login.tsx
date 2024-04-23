@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../Store";
 import { CredentialsSlice, CredentialsState } from "./CredentialsStore";
 import { Navigate, useNavigate } from "react-router-dom";
+import "./login.css";
 
 export default function Login() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -32,27 +33,53 @@ export default function Login() {
   };
 
   return (
-    <div className="login-wrapper">
-      <h1>Please Log In</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          <p>Username</p>
-          <input
-            type="text"
-            onChange={(e) => setUserName(e.target.value || "")}
-          />
-        </label>
-        <label>
-          <p>Password</p>
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value || "")}
-          />
-        </label>
-        <div>
-          <button type="submit">Submit</button>
+    <div>
+      <div className="login-page">
+        <div className="form">
+          <form className="login-form">
+            <div className="input-group m-b-20">
+              <span className="input-group-addon">
+                <i className="zmdi zmdi-account"></i>
+              </span>
+              <div className="fg-line">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Username"
+                  onChange={(e) => setUserName(e.target.value || "")}
+                />
+              </div>
+            </div>
+
+            <div className="input-group m-b-20">
+              <span className="input-group-addon">
+                <i className="zmdi zmdi-lock"></i>
+              </span>
+              <div className="fg-line">
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Password"
+                  onChange={(e) => setPassword(e.target.value || "")}
+                />
+              </div>
+            </div>
+            <div className="checkbox-outer">
+              <div className="checkbox">
+                <label>
+                  Remember me
+                  <input id="checker" type="checkbox" value="" />
+                </label>
+              </div>
+            </div>
+
+            <button onClick={handleSubmit}>login</button>
+            {/* <p className="message">
+              Unable to login? Contact our admin <a href="#">here</a>
+            </p> */}
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

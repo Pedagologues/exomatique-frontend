@@ -36,3 +36,28 @@
     transform: rotate(360deg);
   }
 }
+
+#overlay {
+  position: fixed; /* Sit on top of the page content */
+  display: flex; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 100; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: default; /* Add a pointer on hover */
+  pointer-events:none;
+}
+
+#overlayed-error {
+  z-index: 100;
+  color: red;
+  text-align: center;
+  font-size: large;
+  font-family: "Roboto", "sans-serif";
+}

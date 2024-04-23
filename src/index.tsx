@@ -14,6 +14,17 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persist_store}>
+        <style>
+          {`
+            :root {
+                --primary : #FFFFFF;
+                --shadow-primary : #f2f2f2;
+                --second : #008B8B;
+                --shadow-second : #004848;
+                --important : #FF0;
+            }
+          `}
+        </style>
         <App />
       </PersistGate>
     </Provider>
