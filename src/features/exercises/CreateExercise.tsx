@@ -47,7 +47,6 @@ export default function CreateExercise() {
         if (v.message === "Invalid token") return;
         if (v.message === "No json was found") return;
         let parsed = JSON.parse(v.message);
-        console.log("PARSED "+JSON.stringify(parsed));
         setTitle(parsed.title);
         setRaw(parsed.raw);
         setVisible(parsed.visible);
@@ -77,15 +76,12 @@ export default function CreateExercise() {
   );
 
   const onClick = () => {
-    console.log("CLICKED");
     if (hasClicked) return;
     setHasPdf(null);
     setTimeout(() => {
-      console.log("PASSED");
       Request("exercises", "edit", "json")
         .post({ token, id, raw, title, author, tags, visible })
         .then((v) => {
-          console.log("RETURN " + v.message);
           if (v.message === "Invalid token") return;
           setHasPdf(JSON.parse(v.message).link);
         })
@@ -185,7 +181,6 @@ export function NewExerciseRedirection() {
       .post({})
       .then((v): undefined => {
         if (v.message === "Invalid token") return;
-        console.log("AZEBYIVAZOËBHVIAZOEKHAZIPBGVLEUI");
         if (v.$ok) {
           navigate("/exercises/edit/" + JSON.parse(v.message).id, {
             replace: true,

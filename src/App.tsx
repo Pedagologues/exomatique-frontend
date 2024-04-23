@@ -13,39 +13,53 @@ import { ExercisesList } from "./features/exercises/Exercise";
 import useEffectOnce from "./api/hook/fetch_once";
 import { useState } from "react";
 import Request from "./api/Request";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./Store";
+import { CredentialsSlice } from "./features/credentials/CredentialsStore";
 
-const isAppOnline = async () => {
-  if (!window.navigator.onLine) return false;
-
-  const url = new URL(window.location.origin);
-  url.searchParams.set("q", new Date().toString());
-
-  try {
-    const response = await fetch(url.toString(), { method: "HEAD" });
-
-    return response.ok;
-  } catch {
-    return false;
-  }
-};
 
 function App() {
+  const token = useSelector((state: RootState) => state.credentials.token);
+  const clearOnLoad = useSelector(
+    (state: RootState) => state.credentials.clearOnLoad
+  ); //TODO forget the token at webclosing instead of at the next visit
+  const dispatch = useDispatch();
+
   let [online, setOnline] = useState(null as boolean | null);
+  
 
   useEffectOnce(async () => {
     Request("ping")
       .get()
       .then((v) => {
-        setOnline(v.message === "Pong");
+        let b = v.message === "Pong";
+        setOnline(b);
+        if (b) {
+          if (clearOnLoad) {
+            dispatch(CredentialsSlice.actions.reset());
+          } else if (token !== null) {
+            Request("accounts", "login")
+              .post({ token })
+              .then(
+                (v) => {},
+                (v) => {
+                  dispatch(CredentialsSlice.actions.reset());
+                }
+              )
+              .catch(() => {});
+          }
+        }
       })
-      .catch((e) => setOnline(false));
+      .catch((e) => {
+        setOnline(false);
+      });
   });
 
-  if (online) {
+  if ((online !== false)) {
     return (
       <div>
         <Header />
-        <BrowserRouter>
+        {online && <BrowserRouter>
           <Routes>
             <Route path="/">
               <Route index element={<Home />} />
@@ -62,7 +76,7 @@ function App() {
               <Route path="*" element={<div>Where the fuck are you ?</div>} />
             </Route>
           </Routes>
-        </BrowserRouter>
+        </BrowserRouter>}
       </div>
     );
   }

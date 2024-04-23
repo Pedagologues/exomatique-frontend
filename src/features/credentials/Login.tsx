@@ -13,6 +13,7 @@ export default function Login() {
 
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
 
   if (token !== null) {
     return <Navigate to="../" replace />;
@@ -23,9 +24,12 @@ export default function Login() {
     Request("accounts", "login")
       .post({ username, password })
       .then((v) => {
+        let state : CredentialsState = {
+          ...v,
+          clearOnLoad: !remember
+        }
         dispatch(
-          CredentialsSlice.actions.setToken(
-            JSON.parse(v.message) as CredentialsState
+          CredentialsSlice.actions.setToken(state
           )
         );
         navigate("../", { replace: true });
@@ -68,7 +72,11 @@ export default function Login() {
               <div className="checkbox">
                 <label>
                   Remember me
-                  <input id="checker" type="checkbox" value="" />
+                  <input id="checker" type="checkbox" defaultChecked={true}
+                  onChange={(e) => {
+
+                    setRemember(e.target.checked)
+                  }}/>
                 </label>
               </div>
             </div>

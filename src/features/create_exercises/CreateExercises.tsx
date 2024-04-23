@@ -66,7 +66,6 @@ export default function CreateExercises() {
         .post({ token, id, latex: code })
         .then((v) => {
           if (v.message === "Invalid token") return;
-          console.log(v);
           setHasPdf(JSON.parse(v.message).link);
         })
         .finally(() => setClicked(false));
