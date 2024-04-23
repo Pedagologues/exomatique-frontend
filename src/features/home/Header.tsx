@@ -11,7 +11,7 @@ export default function Header() {
   const dispatch = useDispatch();
   setTimeout(async ()=>{
     if(token === null) return
-    Request("login").post({token}).then(v=>{},( v)=>{
+    Request("accounts", "login").post({token}).then(v=>{},( v)=>{
       dispatch(
         CredentialsSlice.actions.reset()
       );

@@ -20,7 +20,7 @@ export default function Register() {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    Request("register")
+    Request("accounts", "register")
       .post({ username, password })
       .then((v) => {
         dispatch(

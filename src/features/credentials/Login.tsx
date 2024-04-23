@@ -19,7 +19,7 @@ export default function Login() {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    Request("login")
+    Request("accounts", "login")
       .post({ username, password })
       .then((v) => {
         dispatch(
