@@ -102,6 +102,22 @@ export default function CreateExercise() {
     setTags(mv.map(v=>(v as Option).value))
   }
 
+  useEffect(()=>{
+    const handleKeyDown = (event:KeyboardEvent) => {
+      event.preventDefault();
+      const code = event.which || event.keyCode;
+
+      let charCode = String.fromCharCode(code).toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && charCode === 's') {
+        onClick();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  })
+
   return (
     <div>
       <div className="editor">

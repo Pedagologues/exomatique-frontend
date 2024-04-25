@@ -16,6 +16,8 @@ import Request from "./api/Request";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
+import LatexEditorView from "./features/exercises/components/LatexEditorView";
+import Test from "./features/exercises/Test";
 
 
 function App() {
@@ -63,6 +65,7 @@ function App() {
           <Routes>
             <Route path="/">
               <Route index element={<Home />} />
+              <Route path="test" element={<Test/>}/>
               <Route path="home" element={<Navigate to={"/"} replace />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />

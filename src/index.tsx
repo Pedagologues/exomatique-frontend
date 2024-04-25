@@ -6,6 +6,14 @@ import reportWebVitals from "./reportWebVitals";
 import { persist_store, store } from "./Store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import { ThemeProvider, THEME_ID, createTheme } from '@mui/material/styles';
+
+
+const materialTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -14,18 +22,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persist_store}>
-        <style>
-          {`
-            :root {
-                --primary : #FFFFFF;
-                --shadow-primary : #f2f2f2;
-                --second : #008B8B;
-                --shadow-second : #004848;
-                --important : #FF0;
-            }
-          `}
-        </style>
-        <App />
+        <ThemeProvider theme={{[THEME_ID]: materialTheme}}>
+          <App />  
+        </ThemeProvider>
       </PersistGate>
     </Provider>
   </React.StrictMode>
