@@ -4,7 +4,6 @@ import Login from "./features/credentials/Login";
 import Logout from "./features/credentials/Logout";
 import Register from "./features/credentials/Register";
 import Home from "./features/home/Home";
-import Header from "./features/home/Header";
 import CreateExercises from "./features/create_exercises/CreateExercises";
 import CreateExercise, {
   NewExerciseRedirection,
@@ -18,7 +17,7 @@ import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
 import LatexEditorView from "./features/exercises/components/LatexEditorView";
 import Test from "./features/exercises/Test";
-
+import Header from "./features/header/Header";
 
 function App() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -28,7 +27,6 @@ function App() {
   const dispatch = useDispatch();
 
   let [online, setOnline] = useState(null as boolean | null);
-  
 
   useEffectOnce(async () => {
     Request("ping")
@@ -57,29 +55,34 @@ function App() {
       });
   });
 
-  if ((online !== false)) {
+  if (online !== false) {
     return (
       <div>
-        <Header />
-        {online && <BrowserRouter>
-          <Routes>
-            <Route path="/">
-              <Route index element={<Home />} />
-              <Route path="test" element={<Test/>}/>
-              <Route path="home" element={<Navigate to={"/"} replace />} />
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              <Route path="logout" element={<Logout />} />
+        <BrowserRouter>
+          <Header />
+          {online && (
+            <Routes>
+              <Route path="/">
+                <Route index element={<Home />} />
+                <Route path="test" element={<Test />} />
+                <Route path="home" element={<Navigate to={"/"} replace />} />
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+                <Route path="logout" element={<Logout />} />
 
-              <Route path="exercises">
-                <Route index element={<ExercisesList whitelist_tags={[]} />} />
-                <Route path="edit/:id" element={<CreateExercise />} />
-                <Route path="new" element={<NewExerciseRedirection />} />
+                <Route path="exercises">
+                  <Route
+                    index
+                    element={<ExercisesList whitelist_tags={[]} />}
+                  />
+                  <Route path="edit/:id" element={<CreateExercise />} />
+                  <Route path="new" element={<NewExerciseRedirection />} />
+                </Route>
+                <Route path="*" element={<div>Where the fuck are you ?</div>} />
               </Route>
-              <Route path="*" element={<div>Where the fuck are you ?</div>} />
-            </Route>
-          </Routes>
-        </BrowserRouter>}
+            </Routes>
+          )}
+        </BrowserRouter>
       </div>
     );
   }
