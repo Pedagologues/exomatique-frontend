@@ -1,7 +1,0 @@
-.default {
-    transform: translateX(50%);
-}
-
-.fallback {
-    color: transparent;
-}

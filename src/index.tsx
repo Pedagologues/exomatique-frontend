@@ -39,6 +39,15 @@ function Root() {
         palette: {
           mode,
         },
+        components: {
+          MuiAppBar: {
+            styleOverrides: {
+              colorPrimary: {
+                backgroundColor: "#121212"
+              }
+            }
+          }
+        }
       }),
     [mode]
   );

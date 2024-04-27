@@ -4,10 +4,7 @@ import Login from "./features/credentials/Login";
 import Logout from "./features/credentials/Logout";
 import Register from "./features/credentials/Register";
 import Home from "./features/home/Home";
-import CreateExercises from "./features/create_exercises/CreateExercises";
-import CreateExercise, {
-  NewExerciseRedirection,
-} from "./features/exercises/CreateExercise";
+import { NewExerciseRedirection } from "./features/exercises/CreateExercise";
 import { ExercisesList } from "./features/exercises/Exercise";
 import useEffectOnce from "./api/hook/fetch_once";
 import { useState } from "react";
@@ -15,9 +12,9 @@ import Request from "./api/Request";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
-import LatexEditorView from "./features/exercises/components/LatexEditorView";
-import Test from "./features/exercises/Test";
 import Header from "./features/header/Header";
+import { Box } from "@mui/material";
+import EditorView from "./features/exercises/components/EditorView";
 
 function App() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -57,14 +54,13 @@ function App() {
 
   if (online !== false) {
     return (
-      <div>
+      <Box height="100vh" display="flex" flexDirection="column">
         <BrowserRouter>
           <Header />
           {online && (
             <Routes>
               <Route path="/">
                 <Route index element={<Home />} />
-                <Route path="test" element={<Test />} />
                 <Route path="home" element={<Navigate to={"/"} replace />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
@@ -75,7 +71,7 @@ function App() {
                     index
                     element={<ExercisesList whitelist_tags={[]} />}
                   />
-                  <Route path="edit/:id" element={<CreateExercise />} />
+                  <Route path="edit/:id" element={<EditorView />} />
                   <Route path="new" element={<NewExerciseRedirection />} />
                 </Route>
                 <Route path="*" element={<div>Where the fuck are you ?</div>} />
@@ -83,7 +79,7 @@ function App() {
             </Routes>
           )}
         </BrowserRouter>
-      </div>
+      </Box>
     );
   }
   return (
