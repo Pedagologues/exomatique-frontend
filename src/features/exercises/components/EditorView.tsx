@@ -229,7 +229,7 @@ export default function EditorView() {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setExercice({
               ...exercice,
-              title: event.target.value.trim(),
+              title: event.target.value.trimStart(),
             });
           }}
         />
@@ -399,7 +399,7 @@ export default function EditorView() {
               padding: 0,
             }}
           >
-            {rawResponse !== undefined ? (
+            {JSON.stringify(rawResponse) !== "{}" ? (
               JSON.stringify(rawResponse)
             ) : (
               <div className="">

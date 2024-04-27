@@ -3,11 +3,12 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface CredentialsState {
   token: string | null;
+  id: string | null;
   expiration: number;
   clearOnLoad : boolean;
 }
 
-const initial: CredentialsState = { token: null, expiration: -1, clearOnLoad: true };
+const initial: CredentialsState = { token: null, id: null, expiration: -1, clearOnLoad: true };
 
 export const CredentialsSlice = createSlice({
   name: "Credentials",

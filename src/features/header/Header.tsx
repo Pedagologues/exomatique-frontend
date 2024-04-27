@@ -118,7 +118,13 @@ export default function Header() {
               <MenuItem onMouseEnter={handleHover} onClick={handleClose}>
                 Vos exercices
               </MenuItem>
-              <MenuItem onMouseEnter={handleHover} onClick={handleClose}>
+              <MenuItem
+                onMouseEnter={handleHover}
+                onClick={() => {
+                  handleClose();
+                  navigate("/exercises/new", { replace: true });
+                }}
+              >
                 Ajouter un exercice
               </MenuItem>
             </Menu>

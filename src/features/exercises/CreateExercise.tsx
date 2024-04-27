@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "prismjs/components/prism-latex";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Store";
 import Request from "../../api/Request";

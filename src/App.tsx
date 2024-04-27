@@ -38,7 +38,9 @@ function App() {
             Request("accounts", "login")
               .post({ token })
               .then(
-                (v) => {},
+                (v) => {
+                  dispatch(CredentialsSlice.actions.setToken(v))
+                },
                 (v) => {
                   dispatch(CredentialsSlice.actions.reset());
                 }
