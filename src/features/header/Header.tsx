@@ -174,7 +174,7 @@ export default function Header() {
               cursor: "pointer",
             }}
           >
-            BibInfo
+            Exomatique
           </Typography>
           <Container sx={{ display: "flex", justifyContent: "space-evenly" }}>
             <Button
