@@ -1,8 +1,9 @@
-const BACK_URL = "http://localhost";
-const BACK_PORT = 3002;
+const BACK_URL = process.env.REACT_APP_BACKEND_HOST;
+const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
 
 export default function Request(...path: string[]) {
   let uri = BACK_URL + ":" + BACK_PORT + "/" + path.join("/");
+  console.log(uri)
   let header = {
     "Content-Type": "application/json",
   };
