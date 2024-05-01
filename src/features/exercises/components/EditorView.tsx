@@ -161,6 +161,20 @@ export default function EditorView() {
       .finally(() => setIsCompile(false));
   };
 
+  let [correction_mode, setCorrectionMode] = useState(false);
+
+  const onChangeButtonClick = () => {
+    setCorrectionMode(!correction_mode);
+  };
+
+  const get_link = () => {
+    if (link === undefined) return undefined;
+    if (correction_mode) {
+      return link.substring(0, link.length - 4) + "_correction.pdf";
+    }
+    return link;
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const code = event.which || event.keyCode;
@@ -266,7 +280,7 @@ export default function EditorView() {
           </Tooltip>
           <TextField
             id="outlined-basic"
-            label="Outlined"
+            label="Zoom"
             variant="outlined"
             value={Math.ceil(scale * 100)}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -405,7 +419,7 @@ export default function EditorView() {
               <div className="">
                 <Document
                   className="document-class"
-                  file={link}
+                  file={get_link()}
                   options={options}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
@@ -471,7 +485,9 @@ export default function EditorView() {
           />
         </FormControl>
 
-        <Button size="large">Go to Correction</Button>
+        <Button size="large" onClick={() => onChangeButtonClick()}>
+          {correction_mode ? "Switch to Exercise" : "Switch to Correction"}
+        </Button>
 
         <Typography
           variant="h4"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useEffectOnce from "../../api/hook/fetch_once";
 import Request from "../../api/Request";
 // Import the styles
@@ -13,6 +13,7 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import "../reactpdf.css";
 
 import {
+  Box,
   Button,
   Card,
   Checkbox,
@@ -22,6 +23,7 @@ import {
   IconButton,
   List,
   Paper,
+  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -31,6 +33,7 @@ import { RootState } from "../../Store";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { useSearchParams } from "react-router-dom";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 // https://github.com/dvddhln/latexit/
@@ -49,9 +52,9 @@ interface IExercise {
   tags: string[];
 }
 
-export function Exercise(props: { exercise: IExercise }) {
+export function Exercise(props: { exercise: IExercise; key: string }) {
   const accountId = useSelector((state: RootState) => state.credentials.id);
-  let { exercise } = props;
+  let { exercise, key } = props;
 
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -64,6 +67,7 @@ export function Exercise(props: { exercise: IExercise }) {
 
   return (
     <Card
+      key={key}
       style={{
         padding: 5,
         display: "flex",
@@ -160,7 +164,7 @@ export function Exercise(props: { exercise: IExercise }) {
             </Document>
           </Container>
 
-          {(numPages || 0 )> 1 ? (
+          {(numPages || 0) > 1 ? (
             <div
               style={{
                 display: "block",
@@ -213,25 +217,20 @@ export function Exercise(props: { exercise: IExercise }) {
   );
 }
 
-export function ExercisesList(props: {
-  whitelist_tags: string[];
-  begin?: string;
-}) {
-  let [exercises, setExercises] = useState([] as IExercise[]);
+interface IFilter {
+  query: string;
+  tags: string[];
+}
 
-  let fetched = useEffectOnce(() => {
-    Request("exercises", "request", ":size", ":begin")
-      .params({
-        size: 10,
-        begin: props.begin || "0",
-      })
-      .get()
-      .then((v) => {
-        setExercises(v as IExercise[]);
-      });
-  });
-  const [availableTags, setAvailableTags] = useState([] as string[]);
-  let fecthed2 = useEffectOnce(() => {
+export function ExercisesList(props: { isPrivate: boolean }) {
+
+  const token = useSelector((state: RootState) => state.credentials.token);
+  //Query all tags once
+  const [availableTags, setAvailableTags] = useState(
+    undefined as undefined | string[]
+  );
+
+  useEffectOnce(() => {
     Request("exercises", "tags")
       .get()
       .then((v) => {
@@ -239,7 +238,76 @@ export function ExercisesList(props: {
       });
   });
 
-  if (!fetched.current || !fecthed2.current) return <div></div>;
+  let [urlParams, setUrlParams] = useSearchParams();
+  const urlMatcher = new URLSearchParams(urlParams);
+
+  let [filter, setFilter] = useState({
+    query: "",
+    tags: [] as string[],
+  } as IFilter);
+
+  useEffect(() => {
+    let params = new URLSearchParams();
+    params.append("q", btoa(filter.query));
+    filter.tags.forEach((v) => params.append("tag", v));
+    setUrlParams(params.toString());
+  }, [filter, setUrlParams]);
+
+  //Remember currently shown exercises
+  let [exercises, setExercises] = useState([] as IExercise[]);
+  const SIZE = 10;
+  let [isSearching, setIsSearching] = useState(false);
+  let [page, setPage] = useState(0);
+  let [count, setCount] = useState(0);
+
+  const searchInput: React.Ref<any> = useRef(null);
+
+  const [lastFilter, setLastFilter] = useState(
+    undefined as IFilter | undefined
+  );
+  const maxPage = Math.ceil(count / SIZE);
+
+  const [lastPage, setLastPage] = useState(0);
+
+  const onSearch = () => {
+    if (isSearching) return;
+    if (lastFilter === filter && lastPage === page) return;
+    if (lastFilter !== filter) {
+      setPage(0);
+    }
+    let safe_page = lastFilter === filter ? page : 0;
+    setIsSearching(true);
+    Request("exercises", "request", ":begin", ":end")
+      .post({
+        begin: safe_page * SIZE,
+        end: (safe_page + 1) * SIZE,
+        viewer : props.isPrivate ? token : undefined,
+        ...filter,
+      })
+      .then((v) => {
+        setCount(v.count);
+        setExercises(v.exercises || ([] as IExercise[]));
+      })
+      .finally(() => {
+        setLastFilter(filter);
+        return setIsSearching(false);
+      });
+  };
+
+  useEffectOnce(
+    () => onSearch(),
+    [
+      setIsSearching,
+      isSearching,
+      filter,
+      setExercises,
+      lastFilter,
+      page,
+      lastPage,
+    ]
+  );
+  if (availableTags === undefined || exercises === undefined)
+    return <div></div>;
   return (
     <Paper
       style={{
@@ -250,41 +318,81 @@ export function ExercisesList(props: {
         flexDirection: "row",
       }}
     >
-      <div
+      <Paper
+        elevation={5}
         style={{
+          margin: 20,
+          padding: 20,
           display: "flex",
+          width: "100%",
+          height: 200,
+          flexDirection: "column",
+          flex: 1,
         }}
       >
-        <Paper
-          elevation={5}
+        <Container
+          maxWidth={false}
           style={{
-            margin: 20,
-            padding: 20,
             display: "flex",
+            flexDirection: "row",
             width: "100%",
-            height: 200,
-            flex:1,
+            gap: 5,
+            flex: 1,
           }}
         >
-          <List
-            style={{
-              padding: 5,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "left"
-            }}
-          >
-            {availableTags.map((v) => {
-              return (
-                <FormControlLabel key={v} control={<Checkbox />} label={v} labelPlacement="start"/>
-              );
-            })}
-          </List>
-        </Paper>
-      </div>
+          <TextField
+            inputRef={searchInput}
+            value={filter.query}
+            fullWidth
+            onChange={(e) =>
+              setFilter({ ...filter, query: e.currentTarget.value })
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSearch();
 
-      <div
+                setTimeout(() => {
+                  if (searchInput.current) searchInput.current.blur();
+                });
+              }
+            }}
+          />
+          <Button onClick={() => onSearch()}>SEARCH</Button>
+        </Container>
+        <List
+          style={{
+            padding: 5,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "left",
+          }}
+        >
+          {(availableTags || []).map((v) => {
+            return (
+              <FormControlLabel
+                key={v}
+                control={
+                  <Checkbox
+                    checked={filter.tags.find((u) => u === v) !== undefined}
+                    onChange={(e) => {
+                      let tags2 = filter.tags.filter((u) => u !== v);
+                      if (e.currentTarget.checked) {
+                        tags2.push(v);
+                      }
+                      setFilter({ ...filter, tags: tags2 });
+                    }}
+                  />
+                }
+                label={v}
+                labelPlacement="start"
+              />
+            );
+          })}
+        </List>
+      </Paper>
+      <Paper
         style={{
+          width: "70%",
           display: "flex",
           flexDirection: "column",
           alignContent: "center",
@@ -292,35 +400,10 @@ export function ExercisesList(props: {
           flex: 1,
         }}
       >
-        <Paper
-          style={{
-            width: "75%",
-          }}
-        >
-          <ul
-            style={{
-              margin: 0,
-              padding: 0,
-            }}
-          >
-            {exercises.map((v) => {
-              return (
-                <li
-                  key={v.id}
-                  style={{
-                    listStyleType: "none",
-                    margin: 0,
-                    padding: 0,
-                    width: "100%",
-                  }}
-                >
-                  <Exercise exercise={v} />
-                </li>
-              );
-            })}
-          </ul>
-        </Paper>
-      </div>
+        {exercises.map((v) => {
+          return <Exercise exercise={v} key={v.id} />;
+        })}
+      </Paper>
     </Paper>
   );
 }

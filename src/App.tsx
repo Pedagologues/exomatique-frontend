@@ -71,7 +71,11 @@ function App() {
                 <Route path="exercises">
                   <Route
                     index
-                    element={<ExercisesList whitelist_tags={[]} />}
+                    element={<ExercisesList isPrivate={false} />}
+                  />
+                  <Route
+                    path="yours"
+                    element={<ExercisesList isPrivate={true} />}
                   />
                   <Route path="edit/:id" element={<EditorView />} />
                   <Route path="new" element={<NewExerciseRedirection />} />

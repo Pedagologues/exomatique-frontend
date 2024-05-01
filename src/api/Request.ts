@@ -12,7 +12,7 @@ export default function Request(...path: string[]) {
       return Request(...populate_params(path, params));
     },
     post: (body: any) => fetch_(uri, "POST", header, body),
-    get: () => fetch_(uri, "GET", header, null),
+    get: (body?: any) => fetch_(uri, "GET", header, body || null),
     header: (h: any) => (header = h),
   };
 }
