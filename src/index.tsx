@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { persist_store, store } from "./Store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { ThemeProvider, THEME_ID, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 
 export const ColorModeContext = React.createContext({

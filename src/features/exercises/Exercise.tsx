@@ -13,7 +13,6 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import "../reactpdf.css";
 
 import {
-  Box,
   Button,
   Card,
   Checkbox,
@@ -25,7 +24,6 @@ import {
   Paper,
   TextField,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Store";
@@ -58,8 +56,6 @@ export function Exercise(props: { exercise: IExercise; key: string }) {
 
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [scale, setScale] = useState<number>(1);
-  const theme = useTheme();
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
@@ -223,7 +219,6 @@ interface IFilter {
 }
 
 export function ExercisesList(props: { isPrivate: boolean }) {
-
   const token = useSelector((state: RootState) => state.credentials.token);
   //Query all tags once
   const [availableTags, setAvailableTags] = useState(
@@ -238,8 +233,7 @@ export function ExercisesList(props: { isPrivate: boolean }) {
       });
   });
 
-  let [urlParams, setUrlParams] = useSearchParams();
-  const urlMatcher = new URLSearchParams(urlParams);
+  let [, setUrlParams] = useSearchParams();
 
   let [filter, setFilter] = useState({
     query: "",
@@ -248,7 +242,7 @@ export function ExercisesList(props: { isPrivate: boolean }) {
 
   useEffect(() => {
     let params = new URLSearchParams();
-    params.append("q", btoa(filter.query));
+    if(filter.query && filter.query.length) params.append("q", btoa(filter.query));
     filter.tags.forEach((v) => params.append("tag", v));
     setUrlParams(params.toString());
   }, [filter, setUrlParams]);
@@ -258,6 +252,7 @@ export function ExercisesList(props: { isPrivate: boolean }) {
   const SIZE = 10;
   let [isSearching, setIsSearching] = useState(false);
   let [page, setPage] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let [count, setCount] = useState(0);
 
   const searchInput: React.Ref<any> = useRef(null);
@@ -265,9 +260,8 @@ export function ExercisesList(props: { isPrivate: boolean }) {
   const [lastFilter, setLastFilter] = useState(
     undefined as IFilter | undefined
   );
-  const maxPage = Math.ceil(count / SIZE);
 
-  const [lastPage, setLastPage] = useState(0);
+  const [lastPage,] = useState(0);
 
   const onSearch = () => {
     if (isSearching) return;
@@ -281,7 +275,7 @@ export function ExercisesList(props: { isPrivate: boolean }) {
       .post({
         begin: safe_page * SIZE,
         end: (safe_page + 1) * SIZE,
-        viewer : props.isPrivate ? token : undefined,
+        viewer: props.isPrivate ? token : undefined,
         ...filter,
       })
       .then((v) => {

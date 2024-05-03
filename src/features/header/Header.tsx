@@ -149,9 +149,6 @@ function AccountButton() {
 
 export default function Header() {
   const colorMode = React.useContext(ColorModeContext);
-  const isOnline = useSelector(
-    (state: RootState) => state.credentials.token !== null
-  );
   const navigate = useNavigate();
 
   const theme = useTheme();
