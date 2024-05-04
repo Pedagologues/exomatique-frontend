@@ -1,8 +1,7 @@
-
 import "./App.css";
 
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import loadable from '@loadable/component'
+import loadable from "@loadable/component";
 import useEffectOnce from "./api/hook/fetch_once";
 import { useState } from "react";
 import Request from "./api/Request";
@@ -11,15 +10,18 @@ import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
 import { Box } from "@mui/material";
 
-const Header = loadable(()=> import("./features/header/Header"));
-const Login = loadable(()=> import("./features/credentials/Login"));
-const Logout = loadable(()=> import("./features/credentials/Logout"));
-const Register = loadable(()=> import("./features/credentials/Register"));
-const Home = loadable(()=>import("./features/home/Home"));
-const NewExerciseRedirection = loadable(()=>import("./features/exercises/CreateExercise"));
-const ExercisesList = loadable(()=>import("./features/exercises/Exercise"));
-const EditorView = loadable(()=>import("./features/exercises/components/EditorView"));
-
+const Header = loadable(() => import("./features/header/Header"));
+const Login = loadable(() => import("./features/credentials/Login"));
+const Logout = loadable(() => import("./features/credentials/Logout"));
+const Register = loadable(() => import("./features/credentials/Register"));
+const Home = loadable(() => import("./features/home/Home"));
+const NewExerciseRedirection = loadable(
+  () => import("./features/exercises/CreateExercise")
+);
+const ExercisesList = loadable(() => import("./features/exercises/Exercise"));
+const EditorView = loadable(
+  () => import("./features/exercises/components/EditorView")
+);
 
 const BACK_URL = process.env.REACT_APP_BACKEND_HOST;
 const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
@@ -47,7 +49,7 @@ function App() {
               .post({ token })
               .then(
                 (v) => {
-                  dispatch(CredentialsSlice.actions.setToken(v))
+                  dispatch(CredentialsSlice.actions.setToken(v));
                 },
                 (v) => {
                   dispatch(CredentialsSlice.actions.reset());
@@ -65,8 +67,9 @@ function App() {
   if (online !== false) {
     return (
       <Box height="100vh" display="flex" flexDirection="column">
-        <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"}/>
+        <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"} />
         <BrowserRouter>
+          <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"} />
           <Header />
           {online && (
             <Routes>
@@ -78,10 +81,7 @@ function App() {
                 <Route path="logout" element={<Logout />} />
 
                 <Route path="exercises">
-                  <Route
-                    index
-                    element={<ExercisesList isPrivate={false} />}
-                  />
+                  <Route index element={<ExercisesList isPrivate={false} />} />
                   <Route
                     path="yours"
                     element={<ExercisesList isPrivate={true} />}

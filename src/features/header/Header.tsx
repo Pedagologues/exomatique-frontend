@@ -56,12 +56,17 @@ function ExerciceButton(props: any) {
     <Button
       variant={selected}
       color="inherit"
+      onClickCapture={()=>{
+        handleClose();
+        navigate("/exercises", { replace: true });
+        window.location.reload()
+      }}
       href="/exercises"
       onMouseOver={handleClick}
       onMouseLeave={handleClose}
     >
       <Typography variant="h5">Exercices</Typography>
-      {!isOnline || (
+      {isOnline ? (
         <Menu
           id="simple-menu"
           open={Boolean(anchorEl)}
@@ -80,6 +85,7 @@ function ExerciceButton(props: any) {
           <MenuItem onMouseEnter={handleHover}  onClick={() => {
               handleClose();
               navigate("/exercises/yours", { replace: true });
+              window.location.reload()
             }}>
             Vos exercices
           </MenuItem>
@@ -93,7 +99,7 @@ function ExerciceButton(props: any) {
             Ajouter un exercice
           </MenuItem>
         </Menu>
-      )}
+      ) : undefined}
     </Button>
   );
 }
@@ -149,6 +155,9 @@ function AccountButton() {
 
 export default function Header() {
   const colorMode = React.useContext(ColorModeContext);
+  const isOnline = useSelector(
+    (state: RootState) => state.credentials.token !== null
+  );
   const navigate = useNavigate();
 
   const theme = useTheme();

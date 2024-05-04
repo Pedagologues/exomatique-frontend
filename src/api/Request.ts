@@ -3,7 +3,6 @@ const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
 
 export default function Request(...path: string[]) {
   let uri = BACK_URL + ":" + BACK_PORT + "/" + path.join("/");
-  console.log(uri)
   let header = {
     "Content-Type": "application/json",
   };
@@ -32,14 +31,30 @@ function populate_params(path: string[], params: any): string[] {
   return populated_path;
 }
 
-async function fetch_(path: string, method: string, header: any, body: any) {
-  const v = await fetch(path, {
-    method: method,
-    headers: header,
-    body: body ? JSON.stringify(body) : null,
+async function fetch_(
+  path: string,
+  method: string,
+  header: any,
+  body: any
+): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    let data: any = null;
+    setTimeout(() => {
+      if (data == null) reject(new Error("Timeout on " + method + " " + path));
+    }, 1000);
+
+    const v = await fetch(path, {
+      method: method,
+      headers: header,
+      body: body ? JSON.stringify(body) : null,
+    });
+
+    if (!v.headers.get("content-type")?.startsWith("application/json")) {
+      resolve(v);
+    } else {
+      data = await v.json();
+      data["$ok"] = v.ok;
+      resolve(data);
+    }
   });
-  if (!v.headers.get("content-type")?.startsWith("application/json")) return v;
-  let data = await v.json();
-  data["$ok"] = v.ok;
-  return await data;
 }

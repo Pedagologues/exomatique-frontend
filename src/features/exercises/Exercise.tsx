@@ -29,6 +29,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../Store";
 
 import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useSearchParams } from "react-router-dom";
@@ -48,11 +50,18 @@ interface IExercise {
   title: string;
   link: string;
   tags: string[];
+  removed: boolean;
 }
 
-export function Exercise(props: { exercise: IExercise; key: string }) {
+export function Exercise(props: {
+  exercise: IExercise;
+  setExercise: (exercise: IExercise) => void;
+}) {
   const accountId = useSelector((state: RootState) => state.credentials.id);
-  let { exercise, key } = props;
+  const accountToken = useSelector(
+    (state: RootState) => state.credentials.token
+  );
+  let { exercise } = props;
 
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -63,7 +72,7 @@ export function Exercise(props: { exercise: IExercise; key: string }) {
 
   return (
     <Card
-      key={key}
+      key={exercise.id}
       style={{
         padding: 5,
         display: "flex",
@@ -88,16 +97,67 @@ export function Exercise(props: { exercise: IExercise; key: string }) {
         ></div>
 
         {exercise.authorId === accountId ? (
-          <Button
-            variant="outlined"
-            endIcon={<EditIcon />}
-            style={{
-              margin: 5,
-            }}
-            href={"/exercises/edit/" + exercise.id}
-          >
-            Edit
-          </Button>
+          <div>
+            {!exercise.removed ? (
+              <Button
+                variant="outlined"
+                endIcon={<DeleteIcon />}
+                color="error"
+                style={{
+                  margin: 5,
+                }}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await Request("exercises", "edit", "remove")
+                    .post({
+                      id: exercise.id,
+                      token: accountToken,
+                    })
+                    .catch((e) => console.error("Failed to remove"))
+                    .then(() => {
+                      exercise.removed = true
+                      props.setExercise(exercise);
+                    });
+                }}
+              >
+                Remove
+              </Button>
+            ) : (
+              <Button
+                variant="outlined"
+                endIcon={<SaveIcon />}
+                color="info"
+                style={{
+                  margin: 5,
+                }}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await Request("exercises", "edit", "restore")
+                    .post({
+                      id: exercise.id,
+                      token: accountToken,
+                    })
+                    .catch((e) => console.error("Failed to restore"))
+                    .then(() => {
+                      exercise.removed = false
+                      props.setExercise(exercise);
+                    });
+                }}
+              >
+                Restore
+              </Button>
+            )}
+            <Button
+              variant="outlined"
+              endIcon={<EditIcon />}
+              style={{
+                margin: 5,
+              }}
+              href={"/exercises/edit/" + exercise.id}
+            >
+              Edit
+            </Button>
+          </div>
         ) : undefined}
       </Container>
       <Container
@@ -240,19 +300,11 @@ export default function ExercisesList(props: { isPrivate: boolean }) {
     tags: [] as string[],
   } as IFilter);
 
-  useEffect(() => {
-    let params = new URLSearchParams();
-    if(filter.query && filter.query.length) params.append("q", btoa(filter.query));
-    filter.tags.forEach((v) => params.append("tag", v));
-    setUrlParams(params.toString());
-  }, [filter, setUrlParams]);
-
   //Remember currently shown exercises
   let [exercises, setExercises] = useState([] as IExercise[]);
   const SIZE = 10;
   let [isSearching, setIsSearching] = useState(false);
   let [page, setPage] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let [count, setCount] = useState(0);
 
   const searchInput: React.Ref<any> = useRef(null);
@@ -260,11 +312,19 @@ export default function ExercisesList(props: { isPrivate: boolean }) {
   const [lastFilter, setLastFilter] = useState(
     undefined as IFilter | undefined
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const maxPage = Math.ceil(count / SIZE);
 
-  const [lastPage,] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [lastPage, setLastPage] = useState(0);
 
   const onSearch = () => {
     if (isSearching) return;
+
+    let params = new URLSearchParams();
+    if (filter.query !== "") params.append("q", btoa(filter.query));
+    filter.tags.forEach((v) => params.append("tag", v));
+    setUrlParams(params.toString());
     if (lastFilter === filter && lastPage === page) return;
     if (lastFilter !== filter) {
       setPage(0);
@@ -391,11 +451,18 @@ export default function ExercisesList(props: { isPrivate: boolean }) {
           flexDirection: "column",
           alignContent: "center",
           alignItems: "center",
-          flex: 1,
         }}
       >
-        {exercises.map((v) => {
-          return <Exercise exercise={v} key={v.id} />;
+        {exercises.map((v, i) => {
+          return (
+            <Exercise
+              exercise={{...v}}
+              key={v.id}
+              setExercise={(exercise) => {
+                setExercises(exercises.map((v) => v.id === exercise.id ? exercise : v));
+              }}
+            />
+          );
         })}
       </Paper>
     </Paper>
