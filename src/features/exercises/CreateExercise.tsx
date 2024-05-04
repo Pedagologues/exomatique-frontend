@@ -4,7 +4,7 @@ import { RootState } from "../../Store";
 import Request from "../../api/Request";
 import { useNavigate } from "react-router-dom";
 
-export function NewExerciseRedirection() {
+export default function NewExerciseRedirection() {
   const token = useSelector((state: RootState) => state.credentials.token);
   const navigate = useNavigate();
   const fetched = useRef(false);

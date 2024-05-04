@@ -218,7 +218,7 @@ interface IFilter {
   tags: string[];
 }
 
-export function ExercisesList(props: { isPrivate: boolean }) {
+export default function ExercisesList(props: { isPrivate: boolean }) {
   const token = useSelector((state: RootState) => state.credentials.token);
   //Query all tags once
   const [availableTags, setAvailableTags] = useState(

@@ -1,20 +1,28 @@
+
 import "./App.css";
+
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Login from "./features/credentials/Login";
-import Logout from "./features/credentials/Logout";
-import Register from "./features/credentials/Register";
-import Home from "./features/home/Home";
-import { NewExerciseRedirection } from "./features/exercises/CreateExercise";
-import { ExercisesList } from "./features/exercises/Exercise";
+import loadable from '@loadable/component'
 import useEffectOnce from "./api/hook/fetch_once";
 import { useState } from "react";
 import Request from "./api/Request";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
-import Header from "./features/header/Header";
 import { Box } from "@mui/material";
-import EditorView from "./features/exercises/components/EditorView";
+
+const Header = loadable(()=> import("./features/header/Header"));
+const Login = loadable(()=> import("./features/credentials/Login"));
+const Logout = loadable(()=> import("./features/credentials/Logout"));
+const Register = loadable(()=> import("./features/credentials/Register"));
+const Home = loadable(()=>import("./features/home/Home"));
+const NewExerciseRedirection = loadable(()=>import("./features/exercises/CreateExercise"));
+const ExercisesList = loadable(()=>import("./features/exercises/Exercise"));
+const EditorView = loadable(()=>import("./features/exercises/components/EditorView"));
+
+
+const BACK_URL = process.env.REACT_APP_BACKEND_HOST;
+const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
 
 function App() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -57,6 +65,7 @@ function App() {
   if (online !== false) {
     return (
       <Box height="100vh" display="flex" flexDirection="column">
+        <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"}/>
         <BrowserRouter>
           <Header />
           {online && (
