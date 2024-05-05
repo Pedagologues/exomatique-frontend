@@ -39,6 +39,7 @@ import { RootState } from "../../../Store";
 
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+import { File } from "react-pdf/dist/cjs/shared/types";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 // https://github.com/dvddhln/latexit/
@@ -86,6 +87,8 @@ export default function EditorView() {
       });
   });
 
+  const [pdfString, setPdfString] = useState("");
+
   useEffectOnce(() => {
     Request("exercises", ":token", ":id", "json")
       .params({ token, id })
@@ -101,7 +104,29 @@ export default function EditorView() {
           tags: v.tags,
           author: v.author,
         });
-        if (v.link) setLink(v.link);
+        if (v.link) {
+          Request("exercises", "view", ":id")
+            .params({ id })
+            .post({ token })
+            .then((response) : Promise<any> => {
+              return new Promise((resolve, reject) => {
+                if (response.status === 401) reject(new Error("Invalid Pdf"));
+                else resolve(response);
+              });
+            })
+            .then((response) => response.blob())
+            .then((response) => {
+              let reader = new FileReader();
+              reader.readAsDataURL(response);
+              reader.onloadend = () => {
+                let base64String: string = String(reader.result) || "";
+                setPdfString(
+                  base64String.substring(base64String.indexOf(",") + 1)
+                );
+              };
+            })
+            .catch((e)=>setPdfString(""));
+        }
       });
   });
 
@@ -139,6 +164,8 @@ export default function EditorView() {
     });
   };
 
+  const [data, setData] = useState(undefined as File | undefined);
+
   const handleSaveClick = () => {
     if ((exercice.title || "").trim() === "") {
       alert("Please write a valid title");
@@ -147,11 +174,25 @@ export default function EditorView() {
     setLink(undefined);
     setIsCompile(true);
     Request("exercises", "edit", "json")
+      .timeout(undefined)
       .post({ ...exercice, token })
       .then((response) => {
         setAnnotations(response.annotations);
         if (response.$ok) {
-          setLink(response.link);
+          Request("exercises", "view", ":id")
+            .params({ id })
+            .post({ token })
+            .then((response) => response.blob())
+            .then((response) => {
+              let reader = new FileReader();
+              reader.readAsDataURL(response);
+              reader.onloadend = () => {
+                let base64String: string = String(reader.result) || "";
+                setPdfString(
+                  base64String.substring(base64String.indexOf(",") + 1)
+                );
+              };
+            });
         } else {
           setRawResponse(response.error);
           throw Error(response.error);
@@ -287,7 +328,7 @@ export default function EditorView() {
               let current_v = scale;
               try {
                 let v = Number.parseFloat(event.target.value) / 100;
-                setScale(Number.isNaN(v) ? 1 : v);
+                setScale(Number.isNaN(v) ? 0 : v);
               } catch (error) {
                 setScale(Number.isNaN(current_v) ? 1 : current_v);
               }
@@ -419,7 +460,11 @@ export default function EditorView() {
               <div className="">
                 <Document
                   className="document-class"
-                  file={get_link()}
+                  file={
+                    pdfString.length === 0
+                      ? undefined
+                      : `data:application/pdf;base64,${pdfString}`
+                  }
                   options={options}
                   onLoadSuccess={onDocumentLoadSuccess}
                 >
@@ -472,7 +517,7 @@ export default function EditorView() {
             onChange={(e: any, newValue: string[] | null) => {
               setExercice({
                 ...exercice,
-                tags: newValue || [],
+                tags: newValue?.sort() || [],
               });
             }}
             selectOnFocus

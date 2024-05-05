@@ -11,19 +11,20 @@ export default function NewExerciseRedirection() {
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    Request("exercises", ":token", "new")
-      .params({ token })
-      .post({})
-      .then((v): undefined => {
+    Request("exercises", "new")
+      .post({token})
+      .then((v) => {
+        if(v == null) return;
         if (v.message === "Invalid token") return;
         if (v.$ok) {
-          navigate("/exercises/edit/" + JSON.parse(v.message).id, {
+          navigate("/exercises/edit/" + v.id, {
             replace: true,
           });
         } else {
           navigate("/exercises/error", { replace: true });
         }
-      });
+      })
+      .catch((e)=>console.error(e));
   });
 
   return <div>Waiting for redirection ...</div>;

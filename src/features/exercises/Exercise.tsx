@@ -34,7 +34,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useSearchParams } from "react-router-dom";
-
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 // https://github.com/dvddhln/latexit/
 
@@ -211,6 +210,9 @@ export function Exercise(props: {
               file={exercise.link}
               options={options}
               onLoadSuccess={onDocumentLoadSuccess}
+              onError={(e)=>{}}
+              onLoadError={(e)=>{}}
+              onSourceError={(e)=>{}}
             >
               <Page
                 pageNumber={currentPage + 1}
