@@ -9,16 +9,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
 import { Box } from "@mui/material";
-import NewExerciseRedirection from "./features/exercises/CreateExercise";
+import NewExerciseRedirection from "./features/exercises/NewExerciseRedirection";
 
 const Header = loadable(() => import("./features/header/Header"));
 const Login = loadable(() => import("./features/credentials/Login"));
 const Logout = loadable(() => import("./features/credentials/Logout"));
 const Register = loadable(() => import("./features/credentials/Register"));
 const Home = loadable(() => import("./features/home/Home"));
-const ExercisesList = loadable(() => import("./features/exercises/Exercise"));
+const ExercisesList = loadable(() => import("./features/exercises/ExercisesPane"));
 const EditorView = loadable(
-  () => import("./features/exercises/components/EditorView")
+  () => import("./features/exercises/ExerciseEditorPane")
 );
 
 const BACK_URL = process.env.REACT_APP_BACKEND_HOST;

@@ -31,11 +31,11 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import Split from "react-split";
 
 import { renderToStaticMarkup } from "react-dom/server";
-import Request from "../../../api/Request";
-import useEffectOnce from "../../../api/hook/fetch_once";
+import Request from "../../api/Request";
+import useEffectOnce from "../../api/hook/fetch_once";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../Store";
+import { RootState } from "../../Store";
 
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
