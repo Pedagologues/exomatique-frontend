@@ -188,10 +188,13 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
           })}
         </List>
       </Paper>
-      <Paper
+      
+      <Container
+        maxWidth={false}
         style={{
           width: "70%",
           display: "flex",
+          height: "100%",
           flexDirection: "column",
           alignContent: "center",
           alignItems: "center",
@@ -210,7 +213,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
             />
           );
         })}
-      </Paper>
+      </Container>
     </Paper>
   );
 }

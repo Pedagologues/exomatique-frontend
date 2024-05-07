@@ -1,0 +1,8 @@
+.pdf_toolbar *{
+    visibility: hidden;
+}
+
+.pdf_toolbar:hover *{
+    visibility: visible;
+    background-color: "#aaaf";
+}

@@ -9,7 +9,7 @@ export default function useEffectOnce(callback: (()=>void), deps?: DependencyLis
         fetched.current = true
         callback();
 
-    }, deps_)
+    }, [callback])
 
     return fetched;
 }

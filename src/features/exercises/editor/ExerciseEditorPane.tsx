@@ -25,21 +25,21 @@ import json from "./mathjax.snippet.json";
 import { Ace } from "ace-builds";
 
 import { Document, Page, pdfjs } from "react-pdf";
-import "./pdf.css";
+import "./exercise_editor.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import Split from "react-split";
 
 import { renderToStaticMarkup } from "react-dom/server";
-import Request from "../../api/Request";
-import useEffectOnce from "../../api/hook/fetch_once";
+import Request from "../../../api/Request";
+import useEffectOnce from "../../../api/hook/fetch_once";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../../Store";
+import { RootState } from "../../../Store";
 
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
-import { File } from "react-pdf/dist/cjs/shared/types";
+import PdfViewer from "../../pdf_viewer/PdfViewer";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 // https://github.com/dvddhln/latexit/
@@ -77,8 +77,6 @@ export default function EditorView() {
 
   const [link, setLink] = useState(undefined as string | undefined);
 
-  const [rawResponse, setRawResponse] = useState({});
-
   useEffectOnce(() => {
     Request("exercises", "tags")
       .get()
@@ -88,6 +86,39 @@ export default function EditorView() {
   });
 
   const [pdfString, setPdfString] = useState("");
+
+  const get_link = () => {
+    if (link === undefined) return undefined;
+    if (correction_mode) {
+      return link + "_correction";
+    }
+    return link;
+  };
+
+  const updatePdf = (): void => {
+    let link = get_link();
+    if (link === undefined) return;
+    Request(link)
+      .env(false)
+      .params({ id })
+      .post({ token })
+      .then((response): Promise<any> => {
+        return new Promise((resolve, reject) => {
+          if (response.status === 401) reject(new Error("Invalid Pdf"));
+          else resolve(response);
+        });
+      })
+      .then((response) => response.blob())
+      .then((response) => {
+        let reader = new FileReader();
+        reader.readAsDataURL(response);
+        reader.onloadend = () => {
+          let base64String: string = String(reader.result) || "";
+          setPdfString(base64String.substring(base64String.indexOf(",") + 1));
+        };
+      })
+      .catch(() => setPdfString(""));
+  };
 
   useEffectOnce(() => {
     Request("exercises", ":token", ":id", "json")
@@ -105,27 +136,8 @@ export default function EditorView() {
           author: v.author,
         });
         if (v.link) {
-          Request("exercises", "view", ":id")
-            .params({ id })
-            .post({ token })
-            .then((response) : Promise<any> => {
-              return new Promise((resolve, reject) => {
-                if (response.status === 401) reject(new Error("Invalid Pdf"));
-                else resolve(response);
-              });
-            })
-            .then((response) => response.blob())
-            .then((response) => {
-              let reader = new FileReader();
-              reader.readAsDataURL(response);
-              reader.onloadend = () => {
-                let base64String: string = String(reader.result) || "";
-                setPdfString(
-                  base64String.substring(base64String.indexOf(",") + 1)
-                );
-              };
-            })
-            .catch((e)=>setPdfString(""));
+          setLink(v.link);
+          updatePdf();
         }
       });
   });
@@ -164,8 +176,6 @@ export default function EditorView() {
     });
   };
 
-  const [data, setData] = useState(undefined as File | undefined);
-
   const handleSaveClick = () => {
     if ((exercice.title || "").trim() === "") {
       alert("Please write a valid title");
@@ -179,22 +189,9 @@ export default function EditorView() {
       .then((response) => {
         setAnnotations(response.annotations);
         if (response.$ok) {
-          Request("exercises", "view", ":id")
-            .params({ id })
-            .post({ token })
-            .then((response) => response.blob())
-            .then((response) => {
-              let reader = new FileReader();
-              reader.readAsDataURL(response);
-              reader.onloadend = () => {
-                let base64String: string = String(reader.result) || "";
-                setPdfString(
-                  base64String.substring(base64String.indexOf(",") + 1)
-                );
-              };
-            });
+          setLink(response.link);
+          updatePdf();
         } else {
-          setRawResponse(response.error);
           throw Error(response.error);
         }
       })
@@ -206,14 +203,6 @@ export default function EditorView() {
 
   const onChangeButtonClick = () => {
     setCorrectionMode(!correction_mode);
-  };
-
-  const get_link = () => {
-    if (link === undefined) return undefined;
-    if (correction_mode) {
-      return link.substring(0, link.length - 4) + "_correction.pdf";
-    }
-    return link;
   };
 
   useEffect(() => {
@@ -231,23 +220,7 @@ export default function EditorView() {
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
-
-  const [numPages, setNumPages] = useState<number>();
-
-  const [scale, setScale] = useState<number>(2);
-
-  const range = (n: number): number[] => {
-    let l = [];
-    for (let i = 0; i < n; i++) {
-      l.push(i);
-    }
-    return l;
-  };
-
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
-    setNumPages(numPages);
-  }
-
+  
   return (
     <Paper
       elevation={3}
@@ -267,7 +240,6 @@ export default function EditorView() {
         maxWidth={false}
         style={{
           width: "100%",
-          gap: 25,
           display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
@@ -289,7 +261,9 @@ export default function EditorView() {
           }}
         />
 
-        <Tooltip title="Save">
+        <Tooltip title="Save" style={{
+          margin: 10
+        }}>
           <Button
             component="label"
             role={undefined}
@@ -303,47 +277,6 @@ export default function EditorView() {
             Save
           </Button>
         </Tooltip>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          <Tooltip title="Zoom+">
-            <IconButton
-              aria-label="zomm in"
-              onClick={(e) => setScale(Math.ceil(100 * scale + 10) / 100)}
-              size="large"
-            >
-              <ZoomInIcon />
-            </IconButton>
-          </Tooltip>
-          <TextField
-            id="outlined-basic"
-            label="Zoom"
-            variant="outlined"
-            value={Math.ceil(scale * 100)}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              let current_v = scale;
-              try {
-                let v = Number.parseFloat(event.target.value) / 100;
-                setScale(Number.isNaN(v) ? 0 : v);
-              } catch (error) {
-                setScale(Number.isNaN(current_v) ? 1 : current_v);
-              }
-            }}
-          />
-          <Tooltip title="Zoom-">
-            <IconButton
-              aria-label="zomm out"
-              onClick={(e) => setScale(Math.ceil(100 * scale - 10) / 100)}
-              size="large"
-            >
-              <ZoomOutIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
       </Container>
 
       <Container
@@ -446,6 +379,7 @@ export default function EditorView() {
             style={{
               aspectRatio: 1,
               display: "flex",
+              position: "relative",
               justifyContent: "center",
               overflow: "hidden",
               overflowY: "scroll",
@@ -454,33 +388,7 @@ export default function EditorView() {
               padding: 0,
             }}
           >
-            {JSON.stringify(rawResponse) !== "{}" ? (
-              JSON.stringify(rawResponse)
-            ) : (
-              <div className="">
-                <Document
-                  className="document-class"
-                  file={
-                    pdfString.length === 0
-                      ? undefined
-                      : `data:application/pdf;base64,${pdfString}`
-                  }
-                  options={options}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                >
-                  {range(numPages || 0).map((i) => {
-                    return (
-                      <Page
-                        key={i.toString()}
-                        className="document-page"
-                        pageNumber={i + 1}
-                        scale={scale}
-                      />
-                    );
-                  })}
-                </Document>
-              </div>
-            )}
+            <PdfViewer data={pdfString} />
           </Container>
         </Split>
       </Container>

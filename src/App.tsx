@@ -18,7 +18,7 @@ const Register = loadable(() => import("./features/credentials/Register"));
 const Home = loadable(() => import("./features/home/Home"));
 const ExercisesList = loadable(() => import("./features/exercises/ExercisesPane"));
 const EditorView = loadable(
-  () => import("./features/exercises/ExerciseEditorPane")
+  () => import("./features/exercises/editor/ExerciseEditorPane")
 );
 
 const BACK_URL = process.env.REACT_APP_BACKEND_HOST;

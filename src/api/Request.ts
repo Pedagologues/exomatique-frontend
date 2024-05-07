@@ -2,18 +2,25 @@ const BACK_URL = process.env.REACT_APP_BACKEND_HOST;
 const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
 
 class RequestObj {
+  use_env: boolean;
   path: string[];
   timeout_v: number;
   header: any;
   constructor(...path: string[]) {
     this.path = path;
+    this.use_env = true;
     this.timeout_v = 1000;
     this.header = {
       "Content-Type": "application/json",
     };
   }
 
-  public params(params: any){
+  public env(b:boolean) {
+    this.use_env = b;
+    return this;
+  }
+
+  public params(params: any) {
     let populated_path: string[] = [];
 
     this.path.forEach((p) => {
@@ -28,21 +35,23 @@ class RequestObj {
     return this;
   }
 
-  public timeout(t:number | undefined){
+  public timeout(t: number | undefined) {
     this.timeout_v = t || -1;
     return this;
   }
 
-  public uri() : string {
-    return BACK_URL + ":" + BACK_PORT + "/" + this.path.join("/");
+  public uri(): string {
+    if (this.use_env)
+      return BACK_URL + ":" + BACK_PORT + "/" + this.path.join("/");
+    else return this.path.join("/");
   }
 
-  public post(body?:any){
-    return fetch_(this.uri(), "POST", this.header, body, this.timeout_v)
+  public post(body?: any) {
+    return fetch_(this.uri(), "POST", this.header, body, this.timeout_v);
   }
 
-  public get(body?:any){
-    return fetch_(this.uri(), "GET", this.header, body || null, this.timeout_v)
+  public get(body?: any) {
+    return fetch_(this.uri(), "GET", this.header, body || null, this.timeout_v);
   }
 }
 

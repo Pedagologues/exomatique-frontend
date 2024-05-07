@@ -26,3 +26,12 @@
 .page-button {
   z-index: 100;
 }
+
+.pdf_toolbar *{
+  visibility: hidden;
+}
+
+.pdf_toolbar:hover *{
+  visibility: visible;
+  background-color: "#aaaf";
+}
