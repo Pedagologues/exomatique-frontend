@@ -35,11 +35,6 @@ import ExerciseView from "./ExerciseView";
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 // https://github.com/dvddhln/latexit/
 
-const options = {
-  cMapUrl: "/cmaps/",
-  standardFontDataUrl: "/standard_fonts/",
-};
-
 export default function ExerciseCard(props: {
   exercise: IExercise;
   setExercise: (exercise: IExercise) => void;
