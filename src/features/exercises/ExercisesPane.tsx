@@ -41,7 +41,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
 
   let [filter, setFilter] = useState({
     query: atob(urlParams.get("q") || ""),
-    tags: urlParams.getAll("tag") || [] as string[],
+    tags: urlParams.getAll("tag") || ([] as string[]),
   } as IFilter);
 
   //Remember currently shown exercises
@@ -68,6 +68,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
     let params = new URLSearchParams();
     if (filter.query !== "") params.append("q", btoa(filter.query));
     filter.tags.forEach((v) => params.append("tag", v));
+    if(urlParams.get("view") != null) params.append("view", urlParams.get("view") || "")
     setUrlParams(params.toString());
     if (lastFilter === filter && lastPage === page) return;
     if (lastFilter !== filter) {
@@ -188,7 +189,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
           })}
         </List>
       </Paper>
-      
+
       <Container
         maxWidth={false}
         style={{
@@ -209,6 +210,13 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
                 setExercises(
                   exercises.map((v) => (v.id === exercise.id ? exercise : v))
                 );
+              }}
+              viewMode={(urlParams.get("view") || "") === v.id}
+              setViewMode={(b) => {
+                let params = urlParams;
+                params.delete("view");
+                if (b) params.append("view", v.id);
+                setUrlParams(params);
               }}
             />
           );

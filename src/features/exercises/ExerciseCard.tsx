@@ -43,13 +43,15 @@ const options = {
 export default function ExerciseCard(props: {
   exercise: IExercise;
   setExercise: (exercise: IExercise) => void;
+  viewMode: boolean;
+  setViewMode: (b: boolean) => void;
 }) {
   const accountId = useSelector((state: RootState) => state.credentials.id);
 
   const accountToken = useSelector(
     (state: RootState) => state.credentials.token
   );
-  let { exercise } = props;
+  let { exercise, viewMode, setViewMode } = props;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -60,11 +62,16 @@ export default function ExerciseCard(props: {
     setAnchorEl(null);
   };
 
-  const [viewMode, setViewMode] = useState(false);
-
   function onViewClick(): void {
     setViewMode(true);
   }
+
+  if (viewMode)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        setViewMode(false);
+      }
+    });
 
   return (
     <div
