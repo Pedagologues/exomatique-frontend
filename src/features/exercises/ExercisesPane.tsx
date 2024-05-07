@@ -37,11 +37,11 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
       });
   });
 
-  let [, setUrlParams] = useSearchParams();
+  let [urlParams, setUrlParams] = useSearchParams();
 
   let [filter, setFilter] = useState({
-    query: "",
-    tags: [] as string[],
+    query: atob(urlParams.get("q") || ""),
+    tags: urlParams.getAll("tag") || [] as string[],
   } as IFilter);
 
   //Remember currently shown exercises
