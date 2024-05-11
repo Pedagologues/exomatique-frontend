@@ -143,13 +143,27 @@ function AccountButton() {
       </Menu>
     </div>
   ) : (
+    <div style={{
+      display: "flex",
+      flexDirection: "row",
+      gap: 10
+    }}>
     <Button
       color="inherit"
-      variant="contained"
-      onClick={() => navigate("/login", { replace: true })}
+      variant="outlined"
+      onClick={() => navigate("/login")}
     >
       Login
     </Button>
+    
+    <Button
+      color="inherit"
+      variant="contained"
+      onClick={() => navigate("/register", { replace: true })}
+    >
+      Register
+    </Button>
+    </div>
   );
 }
 

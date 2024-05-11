@@ -5,6 +5,14 @@ import { RootState } from "../../Store";
 import { CredentialsSlice, CredentialsState } from "./CredentialsStore";
 import { Navigate, useNavigate } from "react-router-dom";
 import "./login.css";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 export default function Login() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -24,70 +32,48 @@ export default function Login() {
     Request("accounts", "login")
       .post({ username, password })
       .then((v) => {
-        let state : CredentialsState = {
+        let state: CredentialsState = {
           ...v,
-          clearOnLoad: !remember
-        }
-        dispatch(
-          CredentialsSlice.actions.setToken(state
-          )
-        );
+          clearOnLoad: !remember,
+        };
+        dispatch(CredentialsSlice.actions.setToken(state));
         navigate("../", { replace: true });
       });
   };
 
   return (
-    <div>
-      <div className="login-page">
-        <div className="form">
-          <form className="login-form">
-            <div className="input-group m-b-20">
-              <span className="input-group-addon">
-                <i className="zmdi zmdi-account"></i>
-              </span>
-              <div className="fg-line">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Username"
-                  onChange={(e) => setUserName(e.target.value || "")}
-                />
-              </div>
-            </div>
+    <Paper
+      elevation={10}
+      style={{
+        margin: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        padding: 30,
+      }}
+    >
+      <TextField label="Login" fullWidth onChange={(e) => setUserName(e.target.value || "")}/>
+      <TextField label="Password" type="password" fullWidth onChange={(e) => setPassword(e.target.value || "")}/>
 
-            <div className="input-group m-b-20">
-              <span className="input-group-addon">
-                <i className="zmdi zmdi-lock"></i>
-              </span>
-              <div className="fg-line">
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value || "")}
-                />
-              </div>
-            </div>
-            <div className="checkbox-outer">
-              <div className="checkbox">
-                <label>
-                  Remember me
-                  <input id="checker" type="checkbox" defaultChecked={true}
-                  onChange={(e) => {
+      <Box
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          justifyContent: "right",
+        }}
+      >
+        <Typography>
+          Remember me
+          <Checkbox aria-label="remember-me" onChange={(e) => setRemember(e.target.checked)}/>
+        </Typography>
+      </Box>
 
-                    setRemember(e.target.checked)
-                  }}/>
-                </label>
-              </div>
-            </div>
-
-            <button onClick={handleSubmit}>login</button>
-            {/* <p className="message">
-              Unable to login? Contact our admin <a href="#">here</a>
-            </p> */}
-          </form>
-        </div>
-      </div>
-    </div>
+      <Button variant="outlined" color="primary" onClick={handleSubmit}>
+        <Typography>
+          Login
+        </Typography>
+      </Button>
+    </Paper>
   );
 }
