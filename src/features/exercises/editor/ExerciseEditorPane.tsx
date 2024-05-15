@@ -87,17 +87,8 @@ export default function EditorView() {
 
   const [pdfString, setPdfString] = useState("");
 
-  const get_link = () => {
-    if (link === undefined) return undefined;
-    if (correction_mode) {
-      return link + "_correction";
-    }
-    return link;
-  };
-
   const updatePdf = (): void => {
-    let link = get_link();
-    if (link === undefined) return;
+    if (!link) return;
     Request(link)
       .env(false)
       .params({ id })
@@ -137,7 +128,6 @@ export default function EditorView() {
         });
         if (v.link) {
           setLink(v.link);
-          updatePdf();
         }
       });
   });
@@ -190,7 +180,6 @@ export default function EditorView() {
         setAnnotations(response.annotations);
         if (response.$ok) {
           setLink(response.link);
-          updatePdf();
         } else {
           throw Error(response.error);
         }
@@ -203,6 +192,13 @@ export default function EditorView() {
 
   const onChangeButtonClick = () => {
     setCorrectionMode(!correction_mode);
+
+    if(!link) return
+    if (!correction_mode) {
+      return setLink(link + "_correction");
+    }
+
+    return setLink(link.substring(0, link.length - "_correction".length));
   };
 
   useEffect(() => {
@@ -220,7 +216,10 @@ export default function EditorView() {
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
-  
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => updatePdf(), [link]);
+
   return (
     <Paper
       elevation={3}
@@ -244,7 +243,7 @@ export default function EditorView() {
           justifyContent: "space-evenly",
           alignItems: "center",
           margin: 5,
-          padding: 0,
+          padding: 5,
         }}
       >
         <TextField
@@ -261,9 +260,12 @@ export default function EditorView() {
           }}
         />
 
-        <Tooltip title="Save" style={{
-          margin: 10
-        }}>
+        <Tooltip
+          title="Save"
+          style={{
+            margin: 10,
+          }}
+        >
           <Button
             component="label"
             role={undefined}
