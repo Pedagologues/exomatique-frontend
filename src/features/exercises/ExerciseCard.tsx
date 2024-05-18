@@ -133,7 +133,17 @@ export default function ExerciseCard(props: {
             padding: 0,
           }}
         >
-          <Typography variant="h4">{props.exercise.title}</Typography>
+          <Typography
+            variant="h4"
+            onClick={onViewClick}
+            style={{
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+            sx={{ "&:hover": { color: "blue" } }}
+          >
+            {props.exercise.title}
+          </Typography>
           <div
             style={{
               flex: 1,
@@ -146,7 +156,7 @@ export default function ExerciseCard(props: {
             style={{
               marginRight: 10,
             }}
-            onClickCapture={(e) => onViewClick()}
+            onClick={onViewClick}
           >
             View
           </Button>
