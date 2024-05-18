@@ -42,7 +42,7 @@ class RequestObj {
 
   public uri(): string {
     if (this.use_env)
-      return BACK_URL + ":" + BACK_PORT + "/" + this.path.join("/");
+      return BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "")+ "/" + this.path.join("/");
     else return this.path.join("/");
   }
 

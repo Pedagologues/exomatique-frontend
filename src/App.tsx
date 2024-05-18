@@ -68,9 +68,9 @@ function App() {
   if (online !== false) {
     return (
       <Box height="100vh" display="flex" flexDirection="column">
-        <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"} />
+        <link rel="preconnect" href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"} />
         <BrowserRouter>
-          <link rel="preconnect" href={BACK_URL + ":" + BACK_PORT + "/"} />
+          <link rel="preconnect" href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"} />
           <Header />
           {online && (
             <Routes>
