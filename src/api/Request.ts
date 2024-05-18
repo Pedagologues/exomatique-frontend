@@ -15,7 +15,7 @@ class RequestObj {
     };
   }
 
-  public env(b:boolean) {
+  public env(b: boolean) {
     this.use_env = b;
     return this;
   }
@@ -42,7 +42,12 @@ class RequestObj {
 
   public uri(): string {
     if (this.use_env)
-      return BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "")+ "/" + this.path.join("/");
+      return (
+        BACK_URL +
+        (BACK_PORT !== "" ? ":" + BACK_PORT : "") +
+        "/" +
+        this.path.join("/")
+      );
     else return this.path.join("/");
   }
 
@@ -89,6 +94,8 @@ async function fetch_(
         } else {
           response.json().then((data) => {
             data["$ok"] = response.ok;
+            data["$status"] = response.status;
+            data["$status_text"] = response.statusText;
             resolve(data);
           });
         }

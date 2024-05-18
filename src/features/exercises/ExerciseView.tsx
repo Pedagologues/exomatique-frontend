@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Store";
 
-
 import "./exercise_view.css";
 
 import PdfViewer from "../pdf_viewer/PdfViewer";
@@ -41,26 +40,28 @@ export default function ExerciseView(props: {
       .env(false)
       .params({ id: accountId })
       .post({ token: accountToken })
-      .then((response): Promise<any> => {
-        return new Promise((resolve, reject) => {
-          if (response.status === 401) reject(new Error("Invalid Pdf"));
-          else resolve(response);
-        });
+      .then(async (response) => {
+        if (response.$ok === undefined) {
+          let reader = new FileReader();
+          reader.readAsDataURL(await response.blob());
+          reader.onloadend = () => {
+            let base64String: string = String(reader.result) || "";
+            setPdfString(base64String.substring(base64String.indexOf(",") + 1));
+          };
+        } else if (!response.$ok) {
+          throw new Error("Invalid Pdf");
+        } else if (response.$status === 202) {
+          setTimeout(updatePdf, 5000);
+          throw new Error("Pdf is being built");
+        }
       })
-      .then((response) => response.blob())
-      .then((response) => {
-        let reader = new FileReader();
-        reader.readAsDataURL(response);
-        reader.onloadend = () => {
-          console.log(response);
-          let base64String: string = String(reader.result) || "";
-          setPdfString(base64String.substring(base64String.indexOf(",") + 1));
-        };
-      })
-      .catch(() => setPdfString(""));
+      .catch((e) => {
+        console.error(e);
+        return setPdfString("");
+      });
   };
 
-  useEffect(updatePdf, [accountId, accountToken, correction_mode, link]);
+  useEffect(updatePdf, [accountId, accountToken, correction_mode, link, updatePdf]);
 
   return (
     <Paper
