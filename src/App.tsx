@@ -16,6 +16,7 @@ const Login = loadable(() => import("./features/credentials/Login"));
 const Logout = loadable(() => import("./features/credentials/Logout"));
 const Register = loadable(() => import("./features/credentials/Register"));
 const Home = loadable(() => import("./features/home/Home"));
+const Contact = loadable(()=>import("./features/contact/Contact"))
 const ExercisesList = loadable(() => import("./features/exercises/ExercisesPane"));
 const EditorView = loadable(
   () => import("./features/exercises/editor/ExerciseEditorPane")
@@ -77,6 +78,7 @@ function App() {
               <Route path="/">
                 <Route index element={<Home />} />
                 <Route path="home" element={<Navigate to={"/"} replace />} />
+                <Route path="contact" element={<Contact />}/>
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="logout" element={<Logout />} />
