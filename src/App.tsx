@@ -3,21 +3,21 @@ import "./App.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import loadable from "@loadable/component";
 import useEffectOnce from "./api/hook/fetch_once";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Request from "./api/Request";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
 import { Box } from "@mui/material";
 import NewExerciseRedirection from "./features/exercises/NewExerciseRedirection";
+import ExercisesList from "./features/exercises/ExercisesPane";
 
 const Header = loadable(() => import("./features/header/Header"));
 const Login = loadable(() => import("./features/credentials/Login"));
 const Logout = loadable(() => import("./features/credentials/Logout"));
 const Register = loadable(() => import("./features/credentials/Register"));
 const Home = loadable(() => import("./features/home/Home"));
-const Contact = loadable(()=>import("./features/contact/Contact"))
-const ExercisesList = loadable(() => import("./features/exercises/ExercisesPane"));
+const Contact = loadable(() => import("./features/contact/Contact"));
 const EditorView = loadable(
   () => import("./features/exercises/editor/ExerciseEditorPane")
 );
@@ -48,10 +48,9 @@ function App() {
               .post({ token })
               .then(
                 (v) => {
-                  if(v.message === "Could not login")
+                  if (v.message === "Could not login")
                     dispatch(CredentialsSlice.actions.reset());
-                  else
-                    dispatch(CredentialsSlice.actions.setToken(v));
+                  else dispatch(CredentialsSlice.actions.setToken(v));
                 },
                 (v) => {
                   dispatch(CredentialsSlice.actions.reset());
@@ -69,32 +68,44 @@ function App() {
   if (online !== false) {
     return (
       <Box height="100vh" display="flex" flexDirection="column">
-        <link rel="preconnect" href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"} />
+        <link
+          rel="preconnect"
+          href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"}
+        />
         <BrowserRouter>
-          <link rel="preconnect" href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"} />
+          <link
+            rel="preconnect"
+            href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"}
+          />
           <Header />
           {online && (
-            <Routes>
-              <Route path="/">
-                <Route index element={<Home />} />
-                <Route path="home" element={<Navigate to={"/"} replace />} />
-                <Route path="contact" element={<Contact />}/>
-                <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
-                <Route path="logout" element={<Logout />} />
+              <Routes>
+                <Route path="/">
+                  <Route index element={<Home />} />
+                  <Route path="home" element={<Navigate to={"/"} replace />} />
+                  <Route path="contact" element={<Contact />} />
+                  <Route path="login" element={<Login />} />
+                  <Route path="register" element={<Register />} />
+                  <Route path="logout" element={<Logout />} />
 
-                <Route path="exercises">
-                  <Route index element={<ExercisesList isPrivate={false} />} />
+                  <Route path="exercises">
+                    <Route
+                      index
+                      element={<ExercisesList isPrivate={false} />}
+                    />
+                    <Route
+                      path="yours"
+                      element={<ExercisesList isPrivate={true} />}
+                    />
+                    <Route path="edit/:id" element={<EditorView />} />
+                    <Route path="new" element={<NewExerciseRedirection />} />
+                  </Route>
                   <Route
-                    path="yours"
-                    element={<ExercisesList isPrivate={true} />}
+                    path="*"
+                    element={<div>Where the fuck are you ?</div>}
                   />
-                  <Route path="edit/:id" element={<EditorView />} />
-                  <Route path="new" element={<NewExerciseRedirection />} />
                 </Route>
-                <Route path="*" element={<div>Where the fuck are you ?</div>} />
-              </Route>
-            </Routes>
+              </Routes>
           )}
         </BrowserRouter>
       </Box>
