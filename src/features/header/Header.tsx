@@ -56,10 +56,11 @@ function ExerciceButton(props: any) {
     <Button
       variant={selected}
       color="inherit"
-      onClickCapture={()=>{
+      onClick={(e) => {
+        e.stopPropagation();
         handleClose();
         navigate("/exercises", { replace: true });
-        window.location.reload()
+        window.location.reload();
       }}
       href="/exercises"
       onMouseOver={handleClick}
@@ -82,16 +83,21 @@ function ExerciceButton(props: any) {
           }}
           disableAutoFocusItem
         >
-          <MenuItem onMouseEnter={handleHover}  onClick={() => {
+          <MenuItem
+            onMouseEnter={handleHover}
+            onClick={(e) => {
               handleClose();
+              e.stopPropagation();
               navigate("/exercises/yours", { replace: true });
-              window.location.reload()
-            }}>
+              window.location.reload();
+            }}
+          >
             Vos exercices
           </MenuItem>
           <MenuItem
             onMouseEnter={handleHover}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               handleClose();
               navigate("/exercises/new", { replace: true });
             }}
@@ -128,7 +134,7 @@ function AccountButton() {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        <AccountCircleIcon/>
+        <AccountCircleIcon />
       </Button>
       <Menu
         id="account-menu"
@@ -139,30 +145,34 @@ function AccountButton() {
           "aria-labelledby": "account-button",
         }}
       >
-        <MenuItem onClick={() => navigate("/logout", { replace: true })} >Logout</MenuItem>
+        <MenuItem onClick={() => navigate("/logout", { replace: true })}>
+          Logout
+        </MenuItem>
       </Menu>
     </div>
   ) : (
-    <div style={{
-      display: "flex",
-      flexDirection: "row",
-      gap: 10
-    }}>
-    <Button
-      color="inherit"
-      variant="outlined"
-      onClick={() => navigate("/login")}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 10,
+      }}
     >
-      Login
-    </Button>
-    
-    <Button
-      color="inherit"
-      variant="contained"
-      onClick={() => navigate("/register", { replace: true })}
-    >
-      Register
-    </Button>
+      <Button
+        color="inherit"
+        variant="outlined"
+        onClick={() => navigate("/login")}
+      >
+        Login
+      </Button>
+
+      <Button
+        color="inherit"
+        variant="contained"
+        onClick={() => navigate("/register", { replace: true })}
+      >
+        Register
+      </Button>
     </div>
   );
 }
