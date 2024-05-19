@@ -19,6 +19,7 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-latex";
 import "ace-builds/src-noconflict/snippets/latex";
 import "ace-builds/src-noconflict/ext-language_tools";
+import "brace/theme/monokai"
 import { addCompleter } from "ace-builds/src-noconflict/ext-language_tools";
 
 import json from "./mathjax.snippet.json";
