@@ -180,7 +180,8 @@ export default function EditorView() {
       .then((response) => {
         setAnnotations(response.annotations);
         if (response.$ok) {
-          setLink(response.link);
+          if(!correction_mode) setLink(response.link);
+          else setLink(response.link+"_correction");
         } else {
           throw Error(response.error);
         }
