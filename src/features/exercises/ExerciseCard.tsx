@@ -72,7 +72,6 @@ export default function ExerciseCard(props: {
     <div
       style={{
         width: "100%",
-        height: "100%",
       }}
     >
       {!viewMode || (

@@ -68,7 +68,8 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
     let params = new URLSearchParams();
     if (filter.query !== "") params.append("q", btoa(filter.query));
     filter.tags.forEach((v) => params.append("tag", v));
-    if(urlParams.get("view") != null) params.append("view", urlParams.get("view") || "")
+    if (urlParams.get("view") != null)
+      params.append("view", urlParams.get("view") || "");
     setUrlParams(params.toString());
     if (lastFilter === filter && lastPage === page) return;
     if (lastFilter !== filter) {
@@ -124,7 +125,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
           padding: 20,
           display: "flex",
           width: "100%",
-          height: 200,
+          height: "70%",
           flexDirection: "column",
           flex: 1,
         }}
@@ -136,7 +137,6 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
             flexDirection: "row",
             width: "100%",
             gap: 5,
-            flex: 1,
           }}
         >
           <TextField
@@ -163,7 +163,9 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
             padding: 5,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "left",
+            justifyContent: "start",
+            overflow: "hidden",
+            overflowY: "scroll",
           }}
         >
           {(availableTags || []).map((v) => {
@@ -197,6 +199,7 @@ export default function ExercisesPane(props: { isPrivate: boolean }) {
           display: "flex",
           height: "100%",
           flexDirection: "column",
+          justifyContent: "start",
           alignContent: "center",
           alignItems: "center",
         }}
