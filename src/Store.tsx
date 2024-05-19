@@ -25,7 +25,7 @@ export const store = configureStore({
       credentials: CredentialsSlice.reducer,
     })
   ),
-  devTools: process.env.NODE_ENV !== "production",
+  devTools: import.meta.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

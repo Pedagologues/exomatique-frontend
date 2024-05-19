@@ -15,7 +15,7 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 
 import AceEditor from "react-ace";
-import "ace-builds/webpack-resolver";
+// import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/mode-latex";
 import "ace-builds/src-noconflict/snippets/latex";
 import "ace-builds/src-noconflict/ext-language_tools";

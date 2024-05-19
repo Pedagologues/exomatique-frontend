@@ -1,5 +1,5 @@
-const BACK_URL = process.env.REACT_APP_BACKEND_HOST;
-const BACK_PORT = process.env.REACT_APP_BACKEND_PORT;
+const BACK_URL = import.meta.env.VITE_REACT_APP_BACKEND_HOST;
+const BACK_PORT = import.meta.env.VITE_REACT_APP_BACKEND_PORT;
 
 class RequestObj {
   use_env: boolean;
