@@ -27,7 +27,7 @@ export default function Home() {
         <Typography variant="h5" margin={5}>
           Si vous voulez contribuer au code, donner une idée ou bien faire connaître un bug n'hésitez pas à le mettre sur le GitHub. (lien en bas à droite)
 
-          Ce projet est pas essence communautaire, si vous avez un avis (constructif) on serait ravis de l'entendre !
+          Ce projet est par essence communautaire, si vous avez un avis (constructif) on serait ravis de l'entendre !
         </Typography>
       </div>
 
