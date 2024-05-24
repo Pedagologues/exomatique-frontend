@@ -1,9 +1,6 @@
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
+import { Toolbar, IconButton, Typography } from "@mui/material";
 import { Button, Container, Menu, MenuItem, useTheme } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -193,7 +190,7 @@ export default function Header() {
   };
 
   return (
-    <Box>
+    <div>
       <AppBar position="static">
         <Toolbar>
           <Typography
@@ -239,6 +236,6 @@ export default function Header() {
           </IconButton>
         </Toolbar>
       </AppBar>
-    </Box>
+    </div>
   );
 }

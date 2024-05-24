@@ -13,23 +13,22 @@ import {
   IconButton,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-
-import AceEditor from "react-ace";
-// import "ace-builds/webpack-resolver";
-import "ace-builds/src-noconflict/mode-latex";
-import "ace-builds/src-noconflict/snippets/latex";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "brace/theme/monokai"
-import { addCompleter } from "ace-builds/src-noconflict/ext-language_tools";
+import { Diagnostic, linter, lintGutter } from "@codemirror/lint";
 
 import json from "./mathjax.snippet.json";
-import { Ace } from "ace-builds";
+import {
+  getPanelElement,
+  getPanelGroupElement,
+  getResizeHandleElement,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from "react-resizable-panels";
 
 import { Document, Page, pdfjs } from "react-pdf";
 import "./exercise_editor.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import Split from "react-split";
 
 import { renderToStaticMarkup } from "react-dom/server";
 import Request from "../../../api/Request";
@@ -42,13 +41,15 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import PdfViewer from "../../pdf_viewer/PdfViewer";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-// https://github.com/dvddhln/latexit/
+import CodeMirror from "@uiw/react-codemirror";
+import {
+  loadLanguage,
+  langNames,
+  langs,
+} from "@uiw/codemirror-extensions-langs";
+import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 
-const options = {
-  cMapUrl: "/cmaps/",
-  standardFontDataUrl: "/standard_fonts/",
-};
+loadLanguage("stex");
 
 type IExercice = {
   id: string;
@@ -74,7 +75,7 @@ export default function EditorView() {
 
   const [compile, setIsCompile] = useState(false);
 
-  const [annotations, setAnnotations] = useState([] as Ace.Annotation[]);
+  const [annotations, setAnnotations] = useState([] as Diagnostic[]);
 
   const [link, setLink] = useState(undefined as string | undefined);
 
@@ -157,7 +158,7 @@ export default function EditorView() {
       ],
     };
 
-    addCompleter(completer);
+    //addCompleter(completer);
   }, []);
 
   const handleEditorChange = (value: string) => {
@@ -178,10 +179,27 @@ export default function EditorView() {
       .timeout(undefined)
       .post({ ...exercice, token })
       .then((response) => {
-        setAnnotations(response.annotations);
+        let splitted = exercice.raw.split("\n")
+        setAnnotations(
+          response.annotations
+            .filter(
+              (v: any) =>
+                v.row >= 0 && v.row < exercice.raw.split("\n").length + 1
+            )
+            .map((v: any) => {
+              let r = splitted.slice(0, v.row).join("\n").length;
+
+              return {
+                from: r,
+                to: r + 1,
+                message: v.text,
+                severity: v.type,
+              };
+            })
+        );
         if (response.$ok) {
-          if(!correction_mode) setLink(response.link);
-          else setLink(response.link+"_correction");
+          if (!correction_mode) setLink(response.link);
+          else setLink(response.link + "_correction");
         } else {
           throw Error(response.error);
         }
@@ -195,7 +213,7 @@ export default function EditorView() {
   const onChangeButtonClick = () => {
     setCorrectionMode(!correction_mode);
 
-    if(!link) return
+    if (!link) return;
     if (!correction_mode) {
       return setLink(link + "_correction");
     }
@@ -233,8 +251,8 @@ export default function EditorView() {
         margin: 0,
         padding: 0,
         flex: 1,
-        overflow: "hidden",
-        overflowY: "scroll",
+        minHeight: 0,
+        width: "100%",
       }}
     >
       <Container
@@ -286,115 +304,79 @@ export default function EditorView() {
       <Container
         maxWidth={false}
         style={{
-          marginTop: "auto",
+          display: "flex",
+          position: "relative",
           justifyContent: "center",
           overflow: "hidden",
           overflowY: "scroll",
-          padding: 0,
           margin: 0,
-          left: 0,
-          flex: 1,
+          padding: 0,
+          flexShrink: 1,
         }}
       >
-        <Split
-          className="wrapper-card"
-          minSize={300}
-          sizes={[50, 50]}
-          expandToMin={false}
-          gutterSize={40}
-          gutterAlign="center"
-          snapOffset={30}
-          dragInterval={1}
+        <PanelGroup
           direction="horizontal"
-          gutter={() => {
-            const gutterWrapper = document.createElement("div");
-            gutterWrapper.innerHTML = renderToStaticMarkup(
-              <div
-                className="gutter"
-                style={{
-                  display: "flex",
-                  height: "100%",
-                  width: "100%",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
-                <div
-                  style={{
-                    pointerEvents: "none",
-                  }}
-                >
-                  <button
-                    style={{
-                      height: 50,
-                      width: 10,
-                      margin: 0,
-                      padding: 0,
-                      backgroundColor: "#697eca",
-                      cursor: "pointer",
-                      overflow: "hidden",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      pointerEvents: "all",
-                    }}
-                  >
-                    <div>{">"}</div>
-                    <div>{">"}</div>
-                  </button>
-                </div>
-              </div>
-            );
-            return gutterWrapper;
+          style={{
+            position: "relative",
+            display: "flex",
+            flexShrink: 1,
           }}
         >
-          <AceEditor
+          <Panel
             style={{
-              background: theme.palette.background.default,
               position: "relative",
-              height: "100%",
-              width: "100%",
-              top: 0,
-              left: 0,
-              flex: 1,
-              aspectRatio: 1,
-              margin: 0,
-              padding: 0,
+              overflow: "auto",
             }}
-            mode="latex"
-            value={exercice.raw}
-            theme={theme.palette.mode === "dark" ? "monokai" : "textmate"}
-            className="editable editor"
-            onChange={handleEditorChange}
-            onValidate={setAnnotations}
-            name="editor"
-            width="100%"
-            fontSize="15px"
-            ref={editorRef.current}
-            annotations={annotations}
-            enableBasicAutocompletion={true}
-            enableLiveAutocompletion={true}
-            enableSnippets={true}
-            editorProps={{ $blockScrolling: true }}
+          >
+            <CodeMirror
+              style={
+                {
+                  //background: theme.palette.background.default,
+                  // position: "relative",
+                  // height: "100%",
+                  // width: "100%",
+                  //top: 0,
+                  //left: 0,
+                  // flex: 1,
+                  // aspectRatio: 1,
+                  //margin: 0,
+                  //padding: 0,
+                  //fontSize: "15px",
+                }
+              }
+              extensions={[
+                langs.stex(),
+                lintGutter(),
+                linter(() => annotations),
+              ]}
+              value={exercice.raw}
+              theme={theme.palette.mode === "dark" ? githubDark : githubLight}
+              onChange={handleEditorChange}
+              //onValidate={setAnnotations}
+              ref={editorRef.current}
+              //annotations={annotations}
+              //enableBasicAutocompletion={true}
+              //enableLiveAutocompletion={true}
+              //enableSnippets={true}
+              //editorProps={{ $blockScrolling: true }}
+            />
+          </Panel>
+          <PanelResizeHandle
+            style={{
+              width: 20,
+              backgroundColor: "var(--AppBar-background)",
+            }}
           />
 
-          <Container
-            maxWidth={false}
+          <Panel
             style={{
-              aspectRatio: 1,
-              display: "flex",
               position: "relative",
-              justifyContent: "center",
               overflow: "hidden",
-              overflowY: "scroll",
-              overflowX: "scroll",
-              margin: 0,
-              padding: 0,
             }}
           >
             <PdfViewer data={pdfString} />
-          </Container>
-        </Split>
+          </Panel>
+        </PanelGroup>
       </Container>
 
       <Container

@@ -8,9 +8,9 @@ import Request from "./api/Request";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./Store";
 import { CredentialsSlice } from "./features/credentials/CredentialsStore";
-import { Box } from "@mui/material";
 import NewExerciseRedirection from "./features/exercises/NewExerciseRedirection";
 import ExercisesList from "./features/exercises/ExercisesPane";
+import { Paper } from "@mui/material";
 
 const Header = loadable(() => import("./features/header/Header"));
 const Login = loadable(() => import("./features/credentials/Login"));
@@ -67,7 +67,11 @@ function App() {
 
   if (online !== false) {
     return (
-      <Box height="100vh" display="flex" flexDirection="column">
+      <div style={{
+        display: "flex",
+        height: "100vh",
+        flexDirection: "column"
+      }}>
         <link
           rel="preconnect"
           href={BACK_URL + (BACK_PORT !== "" ? ":" + BACK_PORT : "") + "/"}
@@ -108,7 +112,7 @@ function App() {
               </Routes>
           )}
         </BrowserRouter>
-      </Box>
+      </div>
     );
   }
   return (

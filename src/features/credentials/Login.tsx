@@ -55,7 +55,7 @@ export default function Login() {
       <TextField label="Login" fullWidth onChange={(e) => setUserName(e.target.value || "")}/>
       <TextField label="Password" type="password" fullWidth onChange={(e) => setPassword(e.target.value || "")}/>
 
-      <Box
+      <div
         style={{
           display: "flex",
           flexDirection: "row",
@@ -67,7 +67,7 @@ export default function Login() {
           Remember me
           <Checkbox aria-label="remember-me" onChange={(e) => setRemember(e.target.checked)}/>
         </Typography>
-      </Box>
+      </div>
 
       <Button variant="outlined" color="primary" onClick={handleSubmit}>
         <Typography>
