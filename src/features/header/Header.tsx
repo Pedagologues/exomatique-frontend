@@ -142,6 +142,9 @@ function AccountButton() {
           "aria-labelledby": "account-button",
         }}
       >
+        <MenuItem onClick={() => navigate("/account", { replace: true })}>
+          Mon compte
+        </MenuItem>
         <MenuItem onClick={() => navigate("/logout", { replace: true })}>
           Logout
         </MenuItem>

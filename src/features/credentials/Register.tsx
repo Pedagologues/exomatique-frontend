@@ -5,12 +5,9 @@ import { RootState } from "../../Store";
 import PasswordStrengthBar from "react-password-strength-bar";
 import { Navigate, useNavigate } from "react-router-dom";
 import { CredentialsSlice, CredentialsState } from "./CredentialsStore";
-import {
-  Button,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Paper, TextField, Typography } from "@mui/material";
+import UsernameFieldInput from "./component/UsernameFieldInput";
+import PasswordFieldInput from "./component/PasswordFieldInput";
 
 export default function Register() {
   const token = useSelector((state: RootState) => state.credentials.token);
@@ -20,8 +17,6 @@ export default function Register() {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [score, setScore] = useState(0);
-
-  console.log(score)
 
   if (token !== null) {
     return <Navigate to="../" replace />;
@@ -33,7 +28,7 @@ export default function Register() {
       .post({ username, password })
       .then((v) => {
         dispatch(
-          CredentialsSlice.actions.setToken(
+          CredentialsSlice.actions.setCredentials(
             JSON.parse(v.message) as CredentialsState
           )
         );
@@ -52,21 +47,8 @@ export default function Register() {
         padding: 30,
       }}
     >
-      <TextField
-        label="Login"
-        fullWidth
-        onChange={(e) => setUserName(e.target.value || "")}
-      />
-      <TextField
-        label="Password"
-        type="password"
-        fullWidth
-        onChange={(e) => setPassword(e.target.value || "")}
-      />
-      <PasswordStrengthBar
-        password={password}
-        onChangeScore={(e) => setScore(e)}
-      />
+      <UsernameFieldInput onValidTextChange={(v) => setUserName(v)} />
+      <PasswordFieldInput onValidTextChange={(v) => setPassword(v)} />
 
       <Button
         variant="outlined"

@@ -19,6 +19,7 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [error, setError] = useState(false);
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
@@ -32,12 +33,17 @@ export default function Login() {
     Request("accounts", "login")
       .post({ username, password })
       .then((v) => {
-        let state: CredentialsState = {
-          ...v,
-          clearOnLoad: !remember,
-        };
-        dispatch(CredentialsSlice.actions.setToken(state));
-        navigate("../", { replace: true });
+        if (v.$ok) {
+          let state: CredentialsState = {
+            token: v.token,
+            name: v.username,
+            id: v.id,
+            expiration: v.expiration,
+            clearOnLoad: !remember,
+          };
+          dispatch(CredentialsSlice.actions.setCredentials(state));
+          navigate("../", { replace: true });
+        }else setError(true);
       });
   };
 
@@ -52,8 +58,25 @@ export default function Login() {
         padding: 30,
       }}
     >
-      <TextField label="Login" fullWidth onChange={(e) => setUserName(e.target.value || "")}/>
-      <TextField label="Password" type="password" fullWidth onChange={(e) => setPassword(e.target.value || "")}/>
+      <TextField
+        error={error}
+        label="Login"
+        fullWidth
+        onChange={(e) => {
+          setError(false);
+          return setUserName(e.target.value || "");
+        }}
+      />
+      <TextField
+        error={error}
+        label="Password"
+        type="password"
+        fullWidth
+        onChange={(e) => {
+          setError(false);
+          return setPassword(e.target.value || "");
+        }}
+      />
 
       <div
         style={{
@@ -65,14 +88,15 @@ export default function Login() {
       >
         <Typography>
           Remember me
-          <Checkbox aria-label="remember-me" onChange={(e) => setRemember(e.target.checked)}/>
+          <Checkbox
+            aria-label="remember-me"
+            onChange={(e) => setRemember(e.target.checked)}
+          />
         </Typography>
       </div>
 
       <Button variant="outlined" color="primary" onClick={handleSubmit}>
-        <Typography>
-          Login
-        </Typography>
+        <Typography>Login</Typography>
       </Button>
     </Paper>
   );
