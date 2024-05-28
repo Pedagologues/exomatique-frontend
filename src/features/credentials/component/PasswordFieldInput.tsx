@@ -17,7 +17,6 @@ export default function PasswordFieldInput(props: PasswordFieldInputProps) {
   const timeout = useRef(undefined as NodeJS.Timeout | undefined);
 
   useEffect(() => {
-    setValid(false);
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(async () => {
       let children: React.ReactNode[] = [];
@@ -25,11 +24,14 @@ export default function PasswordFieldInput(props: PasswordFieldInputProps) {
       if (score < 2) {
         children.push("Password strength is too low");
       }
+
+      console.log(score);
       let i = 0;
       if (children.length === 0) {
         setError(undefined);
         setValid(true);
         if (props.onValidTextChange) props.onValidTextChange(password);
+        if (props.onValidBoolChange) props.onValidBoolChange(true);
       } else {
         if (props.onValidBoolChange) props.onValidBoolChange(false);
         setError(
@@ -44,7 +46,7 @@ export default function PasswordFieldInput(props: PasswordFieldInputProps) {
       clearTimeout(timeout.current);
       timeout.current = undefined;
     }, 250);
-  }, [password]);
+  }, [password, score]);
 
   return (
     <div style={{

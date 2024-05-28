@@ -14,9 +14,8 @@ export default function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [score, setScore] = useState(0);
+  const [username, setUserName] = useState(undefined as string | undefined);
+  const [password, setPassword] = useState(undefined as string | undefined);
 
   if (token !== null) {
     return <Navigate to="../" replace />;
@@ -47,14 +46,24 @@ export default function Register() {
         padding: 30,
       }}
     >
-      <UsernameFieldInput onValidTextChange={(v) => setUserName(v)} />
-      <PasswordFieldInput onValidTextChange={(v) => setPassword(v)} />
+      <UsernameFieldInput
+        onValidTextChange={(v) => setUserName(v)}
+        onValidBoolChange={(v) => {
+          if (!v) setUserName(undefined);
+        }}
+      />
+      <PasswordFieldInput
+        onValidTextChange={(v) => setPassword(v)}
+        onValidBoolChange={(v) => {
+          if (!v) setPassword(undefined);
+        }}
+      />
 
       <Button
         variant="outlined"
         color="primary"
         onClick={handleSubmit}
-        disabled={score < 2}
+        disabled={username == null || password == null}
       >
         <Typography>Register</Typography>
       </Button>
